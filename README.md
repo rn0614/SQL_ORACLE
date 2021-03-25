@@ -1,5 +1,12 @@
 # Oracle (SQL)
 
+## 목차
+
+1. DBMS란? , ORACLE의 구조
+2. 데이터 타입 
+3. PRIMARY, FOREIGN KEY
+4. 함수
+
 
 
 
@@ -22,49 +29,177 @@
 
 
 
-## ch2  오라클 및 sqldeveloper 설치
-
-> 오라클 초기 세팅
->
-> - ORACLE, SQLDEVELOPER 다운
-> - SQLDEVELOPER는 C와 가깝게 폴더 전체를 옮길것
-> - 초기 로컬 시스템은 그냥 생산, 사용자 접속은 사용자로 등록하고 접속
 
 
-
-## ch3 오라클 간단한 사용법
-
-- 사용자 접속
-- 테이블에 값 입력법(수기)
-
-
+## ch2 데이터 타입
 
 데이터 유형
 
-CHAR
+CHAR, NCAHR, VARCHAR, NVARCHAR, DATE, NUMBER
 
-NCAHR
+크게 문제가 없다면 DATE(날짜), VARCHAR2(가변형문자열), NUMER(숫자)
 
-VARCHAR
-
-NVARCHAR
-
-DATE
-
-NUMBER
-
-
+로 구성해도 크게 문제가 없다. 다만 SUM등의 함수를 쓸 때는 NUMBER의 데이터 타입 사용
 
 - 널 아님: 널 값이 들어가면 안되는 열에 체크
 
 
 
-SQL 코드로 테이블 다루기
 
-- `SELECT*FROM 테이블이름;`  :  테이블 조회하기
+
+## CH3 함수
+
+> 데이터 정의어(DDL) : 테이블이나 관계의 구조 생성 : `CREATE` , `ALTER` , `DROP`
+>
+> 데이터 조작어(DML) : 테이블 데이터를 수정 : `SELECT` , `INSERT` , `DELETE` , `UPDATE` 
+>
+> 데이터 제어어(DCL) : 사용 권한을 관리 : `GRANT` , `REVOKE` , `COMMIT` , `ROLLBACK`
+
+
+
+
+
+- 테이블 생성 : `CREATE TABLE "테이블이름"`
+
+- 테이블 삭제 : `DROP TABLE "테이블이름"` 
+- `PRIMART KEY`, `FOREIGN KEY` 설정
+- 데이터 속성 `NOT NULL` , `DEFAULT` , `CHECK`
+- 타입 `VARCHAR2` : 가변 문자열 , `NUMBER` : 숫자  , `DATE` : 날짜
+
+``` sql
+CREATE TABLE 테이블이름1(		-- 테이블 생성
+    열1 타입1(타입크기1),	   -- 열생성
+    열2 타입2(타입크기2) NOT NULL,-- 널 아님(널 값이 열에 들어갈 수 없음) 
+    
+    
+    열3 타입3(타입크기3) DEFAULT 초기값 CHECK(조건식) -- 초기에 초기값 들어가고 CHECK에 조건 만족하는 데이터만 열 삽입 가능
+    
+    --기본키 설정 방법
+    열4 타입4(타입크기4) PRIMARY KEY, --(방법1) 열3을 기본키로 설정
+    CONSTRAINT PK_열1 PRIMARY KEY(열1) -- (방법2)열1을 기본키로 설정    
+);
+
+CREATE TABLE 테이블이름2(
+	열11 타입11(타입크기11),
+	열12 타입12(타입크기12),
+	열13 타입13(타입크기13),
+	
+    -- 열1과 연동되는 열11(외래키 *입력순서 주의)
+    CONSTRAINT FK_열11_열1 FOREIGN KEY (열11) REFERENCES 테이블1 (열1)
+);
+
+
+--테이블 삭제
+DROP TABLE 테이블명;
+```
+
+
+
+- INSERT() : 데이터 입력
+- DELETE() : 데이터 삭제
+- UPDATE() : 데이터 수정
+
+``` SQL
+ INSERT INTO 테이블명 ( 열1, 열2 , 열3 )
+ VALUES(값1, 값2, 값3) -- 값은 문자열일 경우 ''(작은 따움표)로 감싼다.
+ 
+ --값을 한번에 다 넣는다.
+ INSERT ALL
+ INTO 테이블명 VALUES(값1, 값2, 값3)
+ INTO 테이블명 VALUES(값1, 값2, 값3)
+ 
+ --삭제
+ DELETE FROM 테이블 WHERE 열이름 =삭제값;
+ 
+ --수정
+ UPDATE 테이블 SET VALUES (행정보);
+```
+
+
+
+- 시퀀스
+
+``` SQL
+CREATE SEQUENCE NO_SEQ
+START WITH 1
+INCREMENT BY 1
+MAXVALUE 10000
+MINVALUE 1
+NOCYCLE; -- 시퀀스 생성문 1~ 10000까지(번호생성문)
+
+INSERT INTO 테이블명 values (NO_SEQ.NEXTVAL,값1,값2); -- 형태로 삽입
+
+SELECT NO_SEQ CURRVAL FROM dual; -- 현재 시퀀스의 값 검색
+
+SELECT SYSDATE FROM DUAL; -- 실행중인 날짜 출력
+SELECT CURRENT_DATE FROM DUAL; -- 실행중인 현재 날짜 출력
+```
+
+
+
+- 제약조건 추가
+
+``` sql
+-- 열1을 기본키로 설정
+ALTER TABLE 테이블1
+	ADD CONSTRAINT PK_테이블1_열1
+	PRIMARY KEY (열1); 
+	
+-- 열2를 외래키로 설정
+ALTER TABLE 테이블2
+	ADD CONSTRAINT PK_열1_열2
+	FOREIGN KEY(열2) REFERENCES 테이블1(열1)
+```
+
+
+
+- `SELECT*FROM 테이블이름;`  :  전체(*)테이블 조회하기
 - `SELECT 열이름 FROM 테이블이름 WHERE 조건` : 테이블에서 조건에 맞는 열을 출력
-- `CREATE TABLE "테이블이름"` : "테이블이름" 으로 테이블 생성
-- `DROP TABLE "테이블이름"` : ''테이블이름"의 테이블을 삭제
+- `GROUP BY` , `ORDER BY`
+- `DISTINCT` / `UNIQUE`
+- `AS`
+
+``` SQL
+--SELECT 기본 
+SELECT 출력열 FROM 테이블 WHERE 조건 --ORDER BY 열 (ASC/DESC)
+
+--GROUP BY (ORDER BY)
+SELECT 출력열, SUM(열2) FROM 테이블 HAVING 검색조건 --ORDER BY 열 (ASC/DESC)
+
+-- DISTINCT / UNIQUE
+SELECT DISTINCT 출력열 FROM 테이블 WHERE 조건 -- 출력열의 중복 제거
+
+-- AS
+열 AS "새로운 열이름"
+```
+
+
+
+- 집계함수 `SUM()`  , `AVG()` , `COUNT()` , `MAX()` , `MIN()`
+
+``` SQL
+SUM(열) --데이터의 합
+AVG(열) --데이터의 평균
+COUNT(열) --데이터 갯수
+MAX(열) --최댓값
+NIN(열) --최솟값
+```
+
+
+
+- 패턴매칭 `%` , `_`
+- `LIKE`
+- IN
+
+``` SQL
+ --조건식 _는 하나의 글자, %는 미정의 글자  / LIKE는 열에서 해당 글자를 찾는다.
+ 열이름 LIKE '_홍%'
+ 
+ -- 값들 중 하나이면 열을 출력
+ 열이름 IN (값1, 값2, ...)
+```
+
+
 
 
 
