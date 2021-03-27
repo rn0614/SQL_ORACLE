@@ -57,7 +57,7 @@ CHAR, NCAHR, VARCHAR, NVARCHAR, DATE, NUMBER
 
 
 
-
+### 1. CREATE, DROP : 함수 생성 및 삭제
 
 - 테이블 생성 : `CREATE TABLE "테이블이름"`
 
@@ -95,13 +95,12 @@ DROP TABLE 테이블명;
 
 
 
-- INSERT() : 데이터 입력
-- DELETE() : 데이터 삭제
-- UPDATE() : 데이터 수정
+- `INSERT()` : 데이터 입력
+- `DELETE()` : 데이터 삭제
+- `UPDATE()` : 데이터 수정
 
 ``` SQL
- INSERT INTO 테이블명 ( 열1, 열2 , 열3 )
- VALUES(값1, 값2, 값3) -- 값은 문자열일 경우 ''(작은 따움표)로 감싼다.
+ INSERT INTO 테이블명 VALUES(값1, 값2, 값3);
  
  --값을 한번에 다 넣는다.
  INSERT ALL
@@ -117,7 +116,7 @@ DROP TABLE 테이블명;
 
 
 
-- 시퀀스
+- 시퀀스: 일련번호 생성
 
 ``` SQL
 CREATE SEQUENCE NO_SEQ
@@ -127,9 +126,11 @@ MAXVALUE 10000
 MINVALUE 1
 NOCYCLE; -- 시퀀스 생성문 1~ 10000까지(번호생성문)
 
+--테이블의 형태 (NUMBER, VARCHAR2,VACHAR2)
+
 INSERT INTO 테이블명 values (NO_SEQ.NEXTVAL,값1,값2); -- 형태로 삽입
 
-SELECT NO_SEQ CURRVAL FROM dual; -- 현재 시퀀스의 값 검색
+SELECT NO_SEQ.CURRVAL FROM dual; -- 현재 시퀀스의 값 검색
 
 SELECT SYSDATE FROM DUAL; -- 실행중인 날짜 출력
 SELECT CURRENT_DATE FROM DUAL; -- 실행중인 현재 날짜 출력
@@ -137,7 +138,7 @@ SELECT CURRENT_DATE FROM DUAL; -- 실행중인 현재 날짜 출력
 
 
 
-- 제약조건 추가
+- 제약조건 추가 (`PRIAMARY KEY` , `FORIEGN KEY`)
 
 ``` sql
 -- 열1을 기본키로 설정
@@ -187,9 +188,7 @@ NIN(열) --최솟값
 
 
 
-- 패턴매칭 `%` , `_`
-- `LIKE`
-- IN
+- (패턴매칭 `%` , `_`) ,`LIKE`, `IN`
 
 ``` SQL
  --조건식 _는 하나의 글자, %는 미정의 글자  / LIKE는 열에서 해당 글자를 찾는다.
@@ -332,5 +331,280 @@ INNER JOIN book B ON B.bookNo = BS.bookNo
 INNER JOIN publisher P ON P.pubNo = B.pubNo
 GROUP BY  C.clientName, (B.bookPrice*bs.bsQty)
 HAVING SUM(B.bookPrice*bs.bsQty)>100000;
+```
+
+
+
+
+
+
+
+-  `replace()`, `translate()`, `length()`, `lengthB()`
+
+``` sql
+
+
+replace('abcadb','ab','AB') -- ABcadb 출력 'ab'를 'AB' 로 변경
+translate('abcadb','ab','AB') -- ABcAdB 출력 'a','b'를 각각 'A','B' 로 변경
+length() -- 글자 수 출력 전부 1글자로 인식
+lengthB() -- 바이트 수 계산 한글 3/ 나머지 1바이트 인식
+
+--위 함수들은 SELECT와 같이 쓰는데 SELECT는 출력값만 변경 할 뿐 테이블은 그대로인 상태 
+```
+
+
+
+- `SUBSTR()`, `CONCAT()` ,`||연산자`
+
+``` sql
+SUBSTR(열이름, 시작인덱스, 길이) -- 지정한 길이만큼 문자열 반환
+SELECT SUBSTR('성이름', 1, 1 ) AS "성"
+SELECT SUBSTR('성이름', 2, 2 ) AS "이름"
+
+-- 문자열 연결함수
+CONCAT() ,||연산자
+SELECT CONCAT('문자열', '연결방법1'), '문자열'||''||'연결방법2' FROM dual;
+
+SELECT '문자열1' || ' : ' || '문자열2' || ':' || '문자열3' FROM dual;
+```
+
+
+
+
+
+- `INSTR()`
+
+``` SQL
+INSTR(기준 문자열, 지정된 문자열, 찾을 시작 위치, 출현위치) -- 위치 반환
+
+SELECT INSTR('가나다라마바사 가나다라마바사', '가나', 5, 2) FROM dual; --결과 9
+```
+
+
+
+- `LOWER()` , `UPPER()` , `INITCAP()` : 전부 소문자로, 전부 대문자로, 첫글자 대문자로
+
+
+
+- `LPAD(문자열, 길이, 채울 문자열) `: 왼쪽부터 채움
+- `RPAD(문자열, 길이, 채울 문자열)` : 오른쪽부터 채움
+
+
+
+- `TRIM(제거할 방향 FROM 문자열)` : 문자열 앞 뒤 공백 제거
+
+``` SQL
+SELECT TRIM('    대한    ') FROM dual; --양쪽
+SELECT TRIM(LEADING '* 'FROM '***데이터베이스***)'FROM dual;-- 
+SELECT TRIM(TRAILING '*' FROM '***데이터베이스***')FROM dual;
+SELECT TRIM(BOTH '*'FROM '***데이터베이스***')FROM dual;
+```
+
+
+
+- `RANK()` : 값의 순위 변환 (동일 순위 개수만큼 증가)
+- `DENSE_RANK()` : 값의 순위 반환(동일 순위 상관 없이  증가)
+- `ROW_NUMBER()` 
+
+```sql
+SELECT 열이름1,
+            RANK() OVER (ORDER BY 열이름1 DESC) "RANK",
+            DENSE_RANK() OVER (ORDER BY 열이름1 DESC) "DENS_RANK",
+            ROW_NUMBER() OVER (ORDER BY 열이름1 DESC) "ROW_NUMBER"
+    FROM book;
+    
+--상위 N개 출력 : WHERE ROWNUM BETWEEN 1 AND N
+    
+```
+
+
+
+- `ROWNUM` : 순위 반환
+
+``` SQL
+SELECT ROWNUM , bookPrice
+FROM (select bookPrice from book order by bookPrice desc)book
+WHERE ROWNUM BETWEEN 1 AND 5
+ORDER BY bookPrice DESC;
+```
+
+
+
+
+
+
+
+- ROLLUP() /CUBE() /GROUPING SET() : 그룹의 소계와 총계 출력
+
+``` SQL
+-- CUBE()    
+SELECT 열이름1, 열이름2, SUM(열이름3) AS "수량합계"  -- 열이름3은 NUMBER타입
+FROM 테이블이름
+GROUP BY CUBE(열이름1, 열이름2) -- 순서 변경해도 상관 없음
+ORDER BY 열이름1, 열이름2;
+    
+--ROLLUP()  : 그룹의 소계를 함. prdName 우선(순서 중요)
+SELECT 열이름1, 열이름2, SUM(열이름3) AS "수량합계"  -- 열이름3은 NUMBER타입
+FROM 테이블이름
+GROUP BY ROLLUP(열이름1, 열이름2) -- 열이름1을 기준으로 정렬
+ORDER BY 열이름1, 열이름2;
+ 
+    
+--GROUPING SET()
+--항목별 소계만 출력(순서에 따라 출력값의 순서만 다름.)
+ELECT 열이름1, 열이름2, SUM(열이름3) AS "수량합계"  -- 열이름3은 NUMBER타입
+FROM 테이블이름
+GROUP BY GROUPING SETS(열이름1, 열이름2) -- 앞의 항목을 먼저 출력
+ORDER BY 열이름1, 열이름2;
+ 
+    
+```
+
+
+
+- `SYSDATE` , `CURRENT_DATE` , `ADD_MONTHS()` , `EXTRACT()`
+
+``` SQL
+--SYSDATE, DURRENT_DATE : 오늘 날짜 
+SELECT SYSDATE FROM dual; -- 오늘(오라클 서버)
+SELECT CURRENT_DATE FROM dual; -- 오늘(세션 설정)
+
+-- 일(DAY) 더하기
+SELECT SYSDATE +1 FROM dual; --내일
+SELECT SYSDATE -1 FROM dual; --어제
+
+-- 월(MONTH) 더하기
+SELECT ADD_MONTHS(SYSDATE, -12) FROM dual;
+
+
+-- EXTRACT 년,월,일 기준 하나 추출
+SELECT EXTRACT(YEAR FROM SYSDATE) 년,
+	   EXTRACT(MONTH FROM SYSDATE) 월,
+	   EXTRACT(DAY FROM SYSDATE) 일
+FROM dual;
+
+```
+
+
+
+- `CURRENT_TIMESTAMP` , `TO_CHAR()`
+
+``` SQL
+-- 날짜 시간 표기
+SELECT CURRENT_TIMESTAMP FROM dual;
+
+-- 문자열로 변경
+SELECT TO_CHAR(SYSDATE, 'HH:MI:SS') FROM dual;
+
+SELECT TO_CHAR(SYSDATE, 'HH24') 시,
+	TO_CHAR(SYSDATE, 'MI') 분,
+	TO_CHAR(SYSDATE, 'SS') 초
+FROM dual;
+
+
+--날짜 추출 : 년, 월, 일
+SELECT TO_CHAR(SYSDATE ,'YYYY') 년,
+	TO_CHAR(SYSDATE ,'MM') 월,
+	TO_CHAR(SYSDATE ,'DD') 일
+FROM dual;
+
+--월 추출
+SELECT TO_CHAR( 날짜타입열 ,'MM') 월
+FROM 테이블;
+```
+
+
+
+- `NVL2 (값,'A','B')`  : 값이 NULL 이 아닌경우 'A' 출력 NULL인 경우 'B' CNFFUR
+
+``` SQL
+-- 열의 값이 NULL 혹은 ' '(공백) 일경우 값을 출력
+UPDATE 테이블 SET 열이름= 값
+WHERE NVL2(열이름,'Y', 'N')='N' OR clientHobby =' ';
+```
+
+
+
+
+
+- `DECLARE`, `BEGIN`, `END;` : 함수 선언
+
+``` SQL
+SET SERVEROUTP ON -- 화면출력 허용(접속 연결동안 1회 수행)
+
+DECLARE
+	변수명1 데이터타입(크기);
+	변수명2 데이터타입(크기) := 값2 ;    -- 초기화하면서 넣기
+	변수명3 CONSTANT 데이터타입(크기) := 값3 ; -- 상수값
+BEGIN
+	변수명1 := 값1;
+	변수명2 := 값2;
+	DBMS_OUTPUT.PUT_LINE(변수명); -- DBMS 창에 출력하기 위한 출력문
+END;
+
+
+
+
+-- 테이블 열의 값을 변수에 대입할 때
+-- 변수의 데이터 타입을 테이블의 열의 타입으로 선언
+DECLARE
+    --변수를 테이블의 열의 타입으로 선언
+    변수명 테이블.열이름1%TYPE;
+BEGIN
+    --열의 값을 알아와서 변수 변수명에 저장하고 출력(열이름2=값 인)
+    SELECT 열이름1 INTO 변수명 FROM 테이블 WHERE 열이름2 = 값 ;
+    -- 변수 값 출력
+    DBMS_OUTPUT.PUT_LINE(변수명);
+END;
+```
+
+
+
+- `IF문`
+
+``` SQL
+IF 조건문 THEN
+	조건이 참 일 때 수행되는 문장;
+ELSE
+    조건이 거짓일 때 수행되는 문장;
+END IF;
+```
+
+
+
+- CASE 문
+
+``` SQL
+CASE
+    WHEN 조건1 THEN 결과1
+    WHEN 조건2 THEN 결과2
+    WHEN 조건3 THEN 결과3
+    ELSE
+END -- 조건에 합당하는 결과로 반환값을 정함
+```
+
+
+
+- LOOP 문
+
+``` SQL
+LOOP
+	증감값			-- 종료 조건과 연동
+	반복수행되는 문장
+	종료조건		-- 종료 조건이 없으면 무한 반복이므로 꼭 필요
+END LOOP;
+```
+
+
+
+- FORLOOP문
+
+``` SQL
+FOR 변수 IN 시작값 .. 종료값 -- 변수가 시작값에서 종료값이 될 때까지 
+LOOP
+	증감값					-- 보통 변수 := 변수 +1
+	반복수행되는 문장
+	종료조건				
+END LOOP;
 ```
 
