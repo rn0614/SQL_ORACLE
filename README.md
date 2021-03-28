@@ -6,8 +6,11 @@
 2. 데이터 타입 
 3. PRIMARY, FOREIGN KEY
 4. 함수
-
-
+   1. CREAT, DROP, ALTER   (+ 시퀀스 생성)
+   2. INSERT, DELETE, UPDATE 
+   3. SELECT
+   4. 내장함수
+      - 
 
 
 
@@ -17,33 +20,23 @@
 >
 > 무결성 : 데이터 베이스의 제약 조건(있어야 하는 값)
 >
-> 독립성 : 데이터베이스와 프로그램은 서로 독립적인 관계
+> 독립성 : 데이터베이스와 프로그램은 서로 독립적인 관계 (SQL과 테이블은 독립적으로 존재)
 >
 > 관계형DBMS :  테이블형 데이터베이스
 >
 > SQL : 관계형 DBMS 에서 사용 되는 언어(오라클에서 DBMS관리하는 언어)
 >
-> 대소문자 구분 안함
->
-> sql 코드 작성과 테이블이 따로 있는 구조
-
-
 
 
 
 ## ch2 데이터 타입
 
-데이터 유형
+데이터 유형 : 타입(크기)
 
-CHAR, NCAHR, VARCHAR, NVARCHAR, DATE, NUMBER
-
-크게 문제가 없다면 DATE(날짜), VARCHAR2(가변형문자열), NUMER(숫자)
-
-로 구성해도 크게 문제가 없다. 다만 SUM등의 함수를 쓸 때는 NUMBER의 데이터 타입 사용
-
+- VRCHER2 : 가변형 문자열 
+- DATE : 날짜형
+- NUMBER : 상수형
 - 널 아님: 널 값이 들어가면 안되는 열에 체크
-
-
 
 
 
@@ -57,7 +50,7 @@ CHAR, NCAHR, VARCHAR, NVARCHAR, DATE, NUMBER
 
 
 
-### 1. CREATE, DROP : 함수 생성 및 삭제
+### CH3-1. `CREATE`, `DROP` , `ALTER`: 테이블 구조 생성/ 삭제 /수정
 
 - 테이블 생성 : `CREATE TABLE "테이블이름"`
 
@@ -95,23 +88,21 @@ DROP TABLE 테이블명;
 
 
 
-- `INSERT()` : 데이터 입력
-- `DELETE()` : 데이터 삭제
-- `UPDATE()` : 데이터 수정
+- `ALTER` : 제약조건(CONSTRAINT) 추가 (`PRIAMARY KEY` , `FORIEGN KEY`)
 
-``` SQL
- INSERT INTO 테이블명 VALUES(값1, 값2, 값3);
- 
- --값을 한번에 다 넣는다.
- INSERT ALL
- INTO 테이블명 VALUES(값1, 값2, 값3)
- INTO 테이블명 VALUES(값1, 값2, 값3)
- 
- --삭제
- DELETE FROM 테이블 WHERE 열이름 =삭제값;
- 
- --수정
- UPDATE 테이블 SET VALUES (행정보);
+``` sql
+-- 열1을 기본키로 설정
+ALTER TABLE 테이블1
+	ADD CONSTRAINT 제약조건이름 -- 대개 기본키는 PK_열이름, 외래키는 FK_열이름1_열이름2
+	PRIMARY KEY (열1); 
+	
+-- 열2를 외래키로 설정
+ALTER TABLE 테이블2
+	ADD CONSTRAINT 제약조건이름	-- CONSTRAINT 는 제약조건을 뜻함
+	FOREIGN KEY(열2) REFERENCES 테이블1(열1)
+	
+ALTER TABLE 테이블3
+	MODIFY 열3 int NOT NULL;
 ```
 
 
@@ -138,27 +129,38 @@ SELECT CURRENT_DATE FROM DUAL; -- 실행중인 현재 날짜 출력
 
 
 
-- 제약조건 추가 (`PRIAMARY KEY` , `FORIEGN KEY`)
 
-``` sql
--- 열1을 기본키로 설정
-ALTER TABLE 테이블1
-	ADD CONSTRAINT PK_테이블1_열1
-	PRIMARY KEY (열1); 
-	
--- 열2를 외래키로 설정
-ALTER TABLE 테이블2
-	ADD CONSTRAINT PK_열1_열2
-	FOREIGN KEY(열2) REFERENCES 테이블1(열1)
+
+### CH3- 2 : `INSERT` ,  `DELETE` `UPDATE` : 테이블 데이터를 입력/삭제/수정
+
+- `INSERT()` : 데이터 입력
+- `DELETE()` : 데이터 삭제
+- `UPDATE()` : 데이터 수정
+
+``` SQL
+ INSERT INTO 테이블명 VALUES(값1, 값2, 값3);
+ 
+ --값을 한번에 다 넣는다.
+ INSERT ALL
+ INTO 테이블명 VALUES(값1, 값2, 값3)
+ INTO 테이블명 VALUES(값1, 값2, 값3)
+ 
+ --삭제
+ DELETE FROM 테이블 WHERE 열이름 =삭제값;
+ 
+ --수정
+ UPDATE 테이블 SET VALUES (행정보);
 ```
 
 
 
+###  CH3-3 : `SELECT` : 데이터 검색,출력
+
 - `SELECT*FROM 테이블이름;`  :  전체(*)테이블 조회하기
 - `SELECT 열이름 FROM 테이블이름 WHERE 조건` : 테이블에서 조건에 맞는 열을 출력
-- `GROUP BY` , `ORDER BY`
-- `DISTINCT` / `UNIQUE`
-- `AS`
+- `GROUP BY` , `ORDER BY` : 그룹별, 순서별 정렬
+- `DISTINCT` / `UNIQUE` : 열에서 중복을 제외
+- `AS` : 앞의 열 이름을 새로운 열이름으로 출력
 
 ``` SQL
 --SELECT 기본 
@@ -212,53 +214,7 @@ pivot 으로 행을 열로 바꿀 수 있다.
 
 
 
-[테이블 생성방식]
 
-- 직접 생성(현직에선 별로 사용 안됨)
-- IMPORT 생성
-  - 테이블 임포드
-
-테이블 사이에 PRIMARY KEY,FORIEGN KEY 등록
-
-(*추가) ALTER 함수로 NULL 포함, 키의 자료값등을 수정 가능
-
-SELECT 함수로 다양한 조건으로 자료 확인
-
-
-
-AS(이름 선언), FROM (테이블명), WHRER(열명)
-
-
-
-SELECT [행동] [함수] AS "이름선언"
-
-FORM  (테이블 명);
-
-
-
-CREATE TABLE [테이블명]
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-테이블 생성
-
-테이블 생성(기존의 다른 테이블과 연동)
-
-변경 alter NOT NULL로
 
 열 삽입
 
